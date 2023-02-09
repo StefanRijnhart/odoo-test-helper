@@ -10,7 +10,9 @@
 import logging
 
 from odoo import models
+from odoo.release import version_info
 from odoo.tools import OrderedSet
+
 
 try:
     from unittest import mock
@@ -145,11 +147,10 @@ class FakeModelLoader(object):
         for key in self._original_registry:
             ori = self._original_registry[key]
             model = self.env.registry[key]
-            if hasattr(model, "_BaseModel__base_classes"):
-                model._BaseModel__base_classes = ori["base"]
-            else:
-                # Before V16
+            if version_info[0] < 16:
                 model.__bases__ = ori["base"]
+            else:
+                model._BaseModel__base_classes = ori["base"]
             model._inherit_children = ori["_inherit_children"]
             model._inherits_children = ori["_inherits_children"]
             for field in model._fields:
